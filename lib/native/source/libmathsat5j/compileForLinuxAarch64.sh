@@ -11,7 +11,7 @@
 # #########################################
 #
 # INFO:
-# This script is automatically called from ant when publishing MathSAT5 or OptiMathSAT.
+# This script is automatically called from ant when publishing MathSAT5.
 # There is no need to call this scripts manually, except for developing and debugging.
 #
 # #########################################
@@ -19,15 +19,20 @@
 # This script builds libmathsat5j.so (bindings to mathsat5).
 
 # For building libmathsat5j.so, there are two dependencies:
-# - The static Mathsat5 library as can be downloaded from http://mathsat.fbk.eu/download.html
+# - The static Mathsat5 library for ARMv8 (aarch64) can be downloaded
+#   from https://mathsat.fbk.eu/release/mathsat-5.6.6-linux-aarch64-reentrant.tar.gz
 # - The static GMP library compiled with the "-fPIC" option
-#   (compile GMP on ARM, TODO: cross-compilation would be faster).
-#   To create this, download GMP 6.1.2 from http://gmplib.org/ and run
-#     ./configure --enable-cxx --with-pic --disable-shared --enable-fat
-#     make
+#   To create this, download GMP 6.1.2 from http://gmplib.org/ and run:
+#   - cross-compiling on Ubuntu x64_86 for ARMv8 (aarch64):
+#       export CC=aarch64-linux-gnu-gcc-8 CXX=aarch64-linux-gnu-g++-8 ABI=64
+#       ./configure --enable-cxx --with-pic --disable-shared --enable-fat --host=aarch64-linux-gnueabi
+#       make
+#   - alternative: direct compilation on the Raspi (slow!):
+#       ./configure --enable-cxx --with-pic --disable-shared --enable-fat
+#       make
 
-# To build mathsat bindings: ./compile.sh $MATHSAT_DIR $GMP_DIR
-# (compile the bindings on ARM, TODO: cross-compilation would be easier).
+# To build mathsat bindings: ./compileForLinuxAarch64.sh $MATHSAT_DIR $GMP_DIR
+# We cross-compile the bindings on Ubuntu x64_86 for ARMv8 (aarch64).
 
 # This script searches for all included libraries in the current directory first.
 # You can use this to override specific libraries installed on your system.
@@ -69,9 +74,12 @@ if [ ! -f "$GMP_LIB_DIR/libgmp.a" ]; then
     exit 1
 fi
 
-OUT_FILE="libmathsat5j.so"
+OUT_FILE="libmathsat5j-aarch64.so"
 ADDITIONAL_FLAGS=""
-GCC="gcc" # cross-compiling? --> "arm-linux-gnueabihf-gcc"
+
+GCC="aarch64-linux-gnu-gcc-8" # cross-compiling for ARMv8 (aarch64)
+# for ARMv7 (32bit) use "arm-linux-gnueabihf-gcc"
+# for direct compilation use "gcc"
 
 echo "Compiling the C wrapper code and creating the \"$OUT_FILE\" library..."
 
@@ -95,11 +103,14 @@ if [ $? -ne 0 ]; then
 fi
 
 echo "Linking Done"
-echo "Reducing file size by dropping unused symbols..."
+# TODO The tool strip seems to fail for for "ELF 64-bit LSB shared object, ARM aarch64"
+# and reports "unrecognized file format for *.so".
+# This does not further influence the build process.
+# echo "Reducing file size by dropping unused symbols..."
 
-strip ${OUT_FILE}
+# strip ${OUT_FILE}
 
-echo "Reduction Done"
+# echo "Reduction Done"
 
 MISSING_SYMBOLS="$(readelf -Ws ${OUT_FILE} | grep NOTYPE | grep GLOBAL | grep UND)"
 if [ ! -z "$MISSING_SYMBOLS" ]; then
