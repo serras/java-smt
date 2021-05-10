@@ -22,18 +22,24 @@ SPDX-License-Identifier: Apache-2.0
     </info>
 
     <configurations>
-        <conf name="solver-mathsat" extends="solver-mathsat-linux,solver-mathsat-windows"/>
-        <conf name="solver-mathsat-linux" />
-        <conf name="solver-mathsat-windows" />
+        <!-- meta configuration for general usage on multiple platforms -->
+        <conf name="solver-mathsat" extends="solver-mathsat-linux-x86_64,solver-mathsat-windows-x86_64"/>
+
+        <!-- single configurations for usage -->
+        <conf name="solver-mathsat-linux-x86_64" />
+        <conf name="solver-mathsat-linux-aarch64" />
+        <conf name="solver-mathsat-windows-x86_64" />
     </configurations>
 
     <publications defaultconf="solver-mathsat">
         <!-- Linux64 files -->
-        <artifact name="libmathsat5j" conf="solver-mathsat-linux" type="shared-object" ext="so" />
+        <artifact name="libmathsat5j" conf="solver-mathsat-linux-x86_64" type="shared-object" ext="so" e:arch="x86_64"/>
+        <!-- Linux for ARMv8/aarch64 -->
+        <artifact name="libmathsat5j" conf="solver-mathsat-linux-aarch64" type="shared-object" ext="so" e:arch="aarch64"/>
         <!-- Windows64 files -->
-        <artifact name="mathsat5j" conf="solver-mathsat-windows" type="dll" ext="dll" />
-        <artifact name="mathsat"   conf="solver-mathsat-windows" type="dll" ext="dll" />
-        <artifact name="mpir"      conf="solver-mathsat-windows" type="dll" ext="dll" />
+        <artifact name="mathsat5j" conf="solver-mathsat-windows-x86_64" type="dll" ext="dll" e:arch="x86_64"/>
+        <artifact name="mathsat"   conf="solver-mathsat-windows-x86_64" type="dll" ext="dll" e:arch="x86_64"/>
+        <artifact name="mpir"      conf="solver-mathsat-windows-x86_64" type="dll" ext="dll" e:arch="x86_64"/>
     </publications>
     <dependencies></dependencies>
 

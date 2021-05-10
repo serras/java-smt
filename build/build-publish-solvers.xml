@@ -397,16 +397,17 @@ SPDX-License-Identifier: Apache-2.0
         </sequential>
     </macrodef>
 
-    <target name="publish-mathsat" depends="compile-mathsat-bindings-linux, compile-mathsat-bindings-windows, load-ivy"
+    <target name="publish-mathsat" depends="compile-mathsat-bindings-linux, compile-mathsat-bindings-aarch64, compile-mathsat-bindings-windows, load-ivy"
         description="Publish MathSAT binaries to Ivy repo.">
         <fail unless="mathsat.version">
             Please specify the MathSAT5 version with the flag -Dmathsat.version=... .
         </fail>
 
-        <copy file="lib/native/source/libmathsat5j/libmathsat5j.so" tofile="libmathsat5j-${mathsat.version}.so"/>
-        <copy file="lib/native/source/libmathsat5j/mathsat5j.dll" tofile="mathsat5j-${mathsat.version}.dll"/>
-        <copy file="${mathsat-windows.path}/lib/mathsat.dll" tofile="mathsat-${mathsat.version}.dll"/>
-        <copy file="${mathsat-windows.path}/bin/mpir.dll" tofile="mpir-${mathsat.version}.dll"/>
+        <copy file="lib/native/source/libmathsat5j/libmathsat5j.so"         tofile="x86_64/libmathsat5j-${mathsat.version}.so"/>
+        <copy file="lib/native/source/libmathsat5j/libmathsat5j-aarch64.so" tofile="aarch64/libmathsat5j-${mathsat.version}.so"/>
+        <copy file="lib/native/source/libmathsat5j/mathsat5j.dll"           tofile="x86_64/mathsat5j-${mathsat.version}.dll"/>
+        <copy file="${mathsat-windows.path}/lib/mathsat.dll"                tofile="x86_64/mathsat-${mathsat.version}.dll"/>
+        <copy file="${mathsat-windows.path}/bin/mpir.dll"                   tofile="x86_64/mpir-${mathsat.version}.dll"/>
 
         <ivy:resolve conf="solver-mathsat" file="solvers_ivy_conf/ivy_mathsat.xml" />
         <available property="ivy.hasrepository" file="repository/${ivy.organisation}/${ivy.module}" />
@@ -416,12 +417,13 @@ SPDX-License-Identifier: Apache-2.0
         <ivy:publish
             pubrevision="${mathsat.version}"
             resolver="Sosy-Lab-Publish"
-            artifactspattern="[artifact]-[revision].[ext]"
+            artifactspattern="([arch]/)[artifact]-[revision].[ext]"
             status="release"
             />
         <echo>
             You now want to run
             svn add repository/${ivy.organisation}/${ivy.module}/*-${mathsat.version}*
+            svn add repository/${ivy.organisation}/${ivy.module}/*/*-${mathsat.version}*
             svn ci repository/${ivy.organisation}/${ivy.module} -m"publish version ${mathsat.version} of mathsat Solver"
             to make the new version publicly available.</echo>
     </target>
