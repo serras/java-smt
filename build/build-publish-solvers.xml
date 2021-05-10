@@ -346,6 +346,10 @@ SPDX-License-Identifier: Apache-2.0
         <compile-mathsatlike-bindings-linux flag="mathsat"/>
     </target>
 
+    <target name="compile-mathsat-bindings-aarch64">
+        <compile-mathsatlike-bindings-aarch64 flag="mathsat"/>
+    </target>
+
     <target name="compile-mathsat-bindings-windows">
         <compile-mathsatlike-bindings-windows flag="mathsat"/>
     </target>
@@ -363,6 +367,18 @@ SPDX-License-Identifier: Apache-2.0
                <arg value="${mathsat.path}" />
                <arg value="${gmp.path}" />
                <arg value="-@{flag}" />
+           </exec>
+       </sequential>
+    </macrodef>
+
+    <macrodef name="compile-mathsatlike-bindings-aarch64">
+        <attribute name="flag" default="mathsat"/> <!-- unused, OptiMathSAT not yet build for ARMv8/aarch64 -->
+       <sequential>
+            <checkPathOption pathOption="mathsat-aarch64.path" defaultPath="/path/to/mathsat" targetName="Mathsat5 source folder (ARMv8/aarch64 version)"/>
+            <checkPathOption pathOption="gmp-aarch64.path" defaultPath="/path/to/gmp" targetName="GMP source folder (ARMv8/aarch64 version)"/>
+           <exec executable="lib/native/source/libmathsat5j/compileForLinuxAarch64.sh" failonerror="true">
+               <arg value="${mathsat-aarch64.path}" />
+               <arg value="${gmp-aarch64.path}" />
            </exec>
        </sequential>
     </macrodef>
